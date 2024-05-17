@@ -21,18 +21,30 @@ export interface MentionsInputProps
     /**
      * If set to `true` a regular text input element will be rendered
      * instead of a textarea
+     * @default false
      */
     singleLine?: boolean | undefined;
+
     /**
      * If set to `true` spaces will not interrupt matching suggestions
      */
     allowSpaceInQuery?: boolean | undefined;
+
+    /** Renders the SuggestionList above the cursor if there is not enough space below */
     allowSuggestionsAboveCursor?: boolean | undefined;
+
+    /** Forces the SuggestionList to be rendered above the cursor */
     forceSuggestionsAboveCursor?: boolean | undefined;
     ignoreAccents?: boolean | undefined;
+
+    /** @default '' */
     value?: string | undefined;
+
+    /** A callback that is invoked when the user changes the value in the mentions input */
     onChange?: OnChangeHandlerFunc | undefined;
     placeholder?: string | undefined;
+
+    /** Passes true as second argument if the blur was caused by a mousedown on a suggestion */
     onBlur?:
         | ((
             event: React.FocusEvent<HTMLInputElement> | React.FocusEvent<HTMLTextAreaElement>,
@@ -47,9 +59,16 @@ export interface MentionsInputProps
     className?: string | undefined;
     classNames?: any;
     style?: any;
+
+    /** Allows customizing the container of the suggestions */
     customSuggestionsContainer?: (children: React.ReactNode) => React.ReactNode | undefined;
+
+    /** Render suggestions into the DOM in the supplied host element. */
     suggestionsPortalHost?: Element | undefined;
+
+    /** Accepts a React ref to forward to the underlying input element */
     inputRef?: React.Ref<HTMLTextAreaElement> | React.Ref<HTMLInputElement> | undefined;
+
     /**
      * This label would be exposed to screen readers when suggestion popup appears
      * @default ''
@@ -60,7 +79,7 @@ export interface MentionsInputProps
 /**
  * Exposes the type for use with the @see MentionsInputComponent.wrappedInstance which is added by react-mentions' use of substyle (https://github.com/jfschwarz/substyle).
  */
-export interface MentionsInputComponentUnrwapped extends React.Component<MentionsInputProps> {
+export interface MentionsInputComponentUnrwapped extends React.Component<MentionsInputProps> { // tofix?: typo
     /**
      * @deprecated since version 2.4.0. Please use @see MentionsInputProps.inputRef
      */
@@ -85,24 +104,45 @@ export interface MentionsInputClass extends React.ComponentClass<MentionsInputPr
  * Props definition for a mention subelement.
  */
 export interface MentionProps {
-    onAdd?: ((id: string | number, display: string) => void) | undefined;
-    renderSuggestion?:
-        | ((
-            suggestion: SuggestionDataItem,
-            search: string,
-            highlightedDisplay: React.ReactNode,
-            index: number,
-            focused: boolean,
-        ) => React.ReactNode)
-        | undefined;
+
+    /**
+     * Callback invoked when a suggestion has been added
+     */
+    onAdd?: OnAddHandlerFunc | undefined;
+
+    /** Allows customizing how mention suggestions are rendered */
+    renderSuggestion?: SuggestionFunc | undefined;
     className?: string | undefined;
+
+    /**
+     * A template string for the markup to use for mentions
+     * @default '@[__display__](__id__)'
+     */
     markup?: string | undefined;
+
+    /** Accepts a function for customizing the string that is displayed for a mention */
     displayTransform?: DisplayTransformFunc | undefined;
+
+    /**
+     * Defines the char sequence upon which to trigger querying the data source
+     * @default '@'
+     */
     trigger: string | RegExp;
     isLoading?: boolean | undefined;
-    data: SuggestionDataItem[] | DataFunc;
+
+    /** 
+     * An array of the mentionable data entries (objects with id & display keys, or a filtering function that returns an array based on a query parameter
+     * @default null
+     */
+    data: SuggestionDataItem[] | DataFunc | null;
     style?: any;
+
+    /** Append a space when a suggestion has been added */
     appendSpaceOnAdd?: boolean | undefined;
+
+    /**
+     * Allows providing a custom regular expression for parsing your markup and extracting the placeholder interpolations
+     */
     regex?: RegExp | undefined;
 }
 
@@ -148,3 +188,18 @@ export type DataFunc = (
     callback: (data: SuggestionDataItem[]) => void,
     // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
 ) => Promise<void> | void | Promise<SuggestionDataItem[]> | SuggestionDataItem[];
+
+export type SuggestionFunc = (
+    suggestion: SuggestionDataItem,
+    search: string,
+    highlightedDisplay: React.ReactNode,
+    index: number,
+    focused: boolean,
+) => React.ReactNode;
+
+export type OnAddHandlerFunc = (
+    id: string | number,
+    display: string,
+    startPos: number,
+    endPos: number
+) => void;
